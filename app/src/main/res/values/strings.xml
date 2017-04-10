@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">DataRecyclerView</string>
+    <string name="recycler_view_refreshing_text">正在刷新</string>
+    <string name="recycler_view_pre_refresh_text">下拉刷新</string>
+    <string name="recycler_view_refreshed_text">刷新成功！</string>
+    <string name="recycler_view_refresh_failed_text">刷新失败！</string>
+    <string name="recycler_view_refresh_empty_text">数据为空</string>
+    <string name="recycler_view_loading_text">正在加载...</string>
+    <string name="recycler_view_load_failed_text">加载失败，点击重新加载</string>
+    <string name="recycler_view_load_more_text">下一页</string>
+    <string name="recycler_view_ready_text">释放立即刷新</string>
+</resources>
