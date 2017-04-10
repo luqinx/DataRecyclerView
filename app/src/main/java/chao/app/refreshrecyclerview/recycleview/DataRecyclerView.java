@@ -12,9 +12,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.jobs.lib_v1.data.DataItemResult;
-
 import chao.app.refreshrecyclerview.R;
+import chao.app.refreshrecyclerview.recycleview.data.DataItemResult;
 
 /**
  *
@@ -23,7 +22,6 @@ import chao.app.refreshrecyclerview.R;
  *  注意Fragment中使用RecyclerView时，如果存在有复用RootView方案的情况，
  *  请不要销毁Fragment，这样会导致RecyclerView头部不收缩
  *
- *  @see com.yjs.android.pages.TabFragment.MyPageAdapter#destroyItem(ViewGroup, int, Object)
  *
  * @author chao.qin
  * @since 2017/3/7.

@@ -10,13 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
-import com.jobs.lib_v1.app.AppUtil;
-import com.jobs.lib_v1.data.DataItemDetail;
-import com.jobs.lib_v1.data.DataItemResult;
-import com.jobs.lib_v1.task.SilentTask;
 
 import chao.app.protocol.LogHelper;
 import chao.app.refreshrecyclerview.BuildConfig;
+import chao.app.refreshrecyclerview.recycleview.data.DataItemDetail;
+import chao.app.refreshrecyclerview.recycleview.data.DataItemResult;
+import chao.app.refreshrecyclerview.recycleview.task.DataTask;
 
 
 /**
@@ -65,7 +64,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
 
     private DataLoader mDataLoader;
 
-    private SilentTask mDataLoaderTask;
+    private DataTask mDataLoaderTask;
 
     private int mPageSize = 20;
     private int mCurrentPage = NO_PAGE;
@@ -81,17 +80,17 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
     /**
      * 数据单元格样式
      */
-    private final DataRecyclerCellOrganizer mDataOrganizer = DataRecyclerCellCenter.dataOrganizer(this);
-    private final DataRecyclerCellOrganizer mHeaderOrganizer = DataRecyclerCellCenter.headerOrganizer(this);//不支持多个header
-    private final DataRecyclerCellOrganizer mFooterOrganizer = DataRecyclerCellCenter.footerOrganizer(this);
-    private final DataRecyclerCellOrganizer mEmptyOrganizer = DataRecyclerCellCenter.emptyOrganizer(this); //数据为空
+    private final DataRecyclerCellOrganizer mDataOrganizer = new DataRecyclerCellOrganizer(this,DataRecyclerDataCell.class);
+    private final DataRecyclerCellOrganizer mHeaderOrganizer = new DataRecyclerCellOrganizer(this,DataRecyclerHeaderCell.class);
+    private final DataRecyclerCellOrganizer mFooterOrganizer = new DataRecyclerCellOrganizer(this,DataRecyclerFooterCell.class);
+    private final DataRecyclerCellOrganizer mEmptyOrganizer = new DataRecyclerCellOrganizer(this,DataRecyclerEmptyCell.class); //数据为空
 
 
     private OnItemClickListener mItemClickListener;
 
     private OnEmptyClickListener mEmptyClickListener;
     private int mPosition;
-    private SilentTask mDataRefreshTask;
+    private DataTask mDataRefreshTask;
     private boolean mPullRefreshEnabled = true;
     private boolean mAutoLoadEnabled = true;
 
@@ -280,7 +279,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
         }
     }
 
-    private boolean isTaskRunning(SilentTask task) {
+    private boolean isTaskRunning(DataTask task) {
         return task != null && task.getStatus() == AsyncTask.Status.RUNNING;
     }
 
@@ -304,7 +303,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
         if (isTaskRunning(mDataRefreshTask) || isStatus(REFRESH_REFRESHING)) {
             return;
         }
-        mDataRefreshTask = new SilentTask() {
+        mDataRefreshTask = new DataTask() {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
@@ -314,12 +313,12 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
             }
 
             @Override
-            protected DataItemResult doInBackground(String... params) {
+            protected DataItemResult doInBackground(Void... params) {
                 return mDataLoader.fetchData(DataRecyclerAdapter.this, START_PAGE, mPageSize);
             }
 
             @Override
-            protected void onTaskFinished(DataItemResult result) {
+            protected void onPostExecute(DataItemResult result) {
                 appendRefreshData(result);
                 mDataLoader.onFetchDone(result);
             }
@@ -331,7 +330,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
                 toRefreshStatus(REFRESH_PULL);
             }
         };
-        mDataRefreshTask.executeOnPool();
+        mDataRefreshTask.execute();
     }
 
     private void stopLoadingData() {
@@ -350,7 +349,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
         if (isTaskRunning(mDataLoaderTask) || isStatus(LOADING|REFRESH_REFRESHING)) {
             return;
         }
-        mDataLoaderTask = new SilentTask() {
+        mDataLoaderTask = new DataTask() {
             private int loadPage;
 
             @Override
@@ -361,7 +360,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
             }
 
             @Override
-            protected DataItemResult doInBackground(String... params) {
+            protected DataItemResult doInBackground(Void... params) {
                 loadPage = mCurrentPage + 1;
                 if (mCurrentPage == NO_PAGE) {
                     loadPage = START_PAGE;
@@ -370,7 +369,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
             }
 
             @Override
-            protected void onTaskFinished(DataItemResult result) {
+            protected void onPostExecute(DataItemResult result) {
                 appendLoadData(result,loadPage);
                 mDataLoader.onFetchDone(result);
             }
@@ -381,7 +380,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
                 toLoadStatus(IDLE);
             }
         };
-        mDataLoaderTask.executeOnPool();
+        mDataLoaderTask.execute();
     }
 
 
@@ -636,7 +635,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
 
             mStatus |= status;
 
-            AppUtil.print("add status : " + statusText(status) + "(0x" + Integer.toHexString(status) + ")");
+            LogHelper.i(TAG,"add status : " + statusText(status) + "(0x" + Integer.toHexString(status) + ")");
 
         }
         notifyDataSetChanged();
@@ -650,7 +649,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
 
             mStatus &= ~status;
 
-            AppUtil.print("remove status : " + statusText(status) + "(0x" + Integer.toHexString(status) + ")");
+            LogHelper.i(TAG,"remove status : " + statusText(status) + "(0x" + Integer.toHexString(status) + ")");
 
         }
         notifyDataSetChanged();

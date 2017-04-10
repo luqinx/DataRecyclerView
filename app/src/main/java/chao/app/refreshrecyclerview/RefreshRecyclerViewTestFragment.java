@@ -10,15 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.jobs.lib_v1.data.DataItemDetail;
-import com.jobs.lib_v1.data.DataItemResult;
-
 import chao.app.protocol.LogHelper;
 import chao.app.refreshrecyclerview.recycleview.DataLoader;
 import chao.app.refreshrecyclerview.recycleview.DataRecyclerAdapter;
 import chao.app.refreshrecyclerview.recycleview.DataRecyclerCell;
 import chao.app.refreshrecyclerview.recycleview.DataRecyclerView;
 import chao.app.refreshrecyclerview.recycleview.OnItemClickListener;
+import chao.app.refreshrecyclerview.recycleview.data.DataItemDetail;
+import chao.app.refreshrecyclerview.recycleview.data.DataItemResult;
 
 /**
  * @author chao.qin

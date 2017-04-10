@@ -9,8 +9,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.jobs.lib_v1.device.DeviceUtil;
-
 /**
  * 默认的数据单元格
  * 这是一个独立可用的数据单元格，如果需要写子类，请直接继承 DataListCell
@@ -32,7 +30,7 @@ public class DataRecyclerDataCell extends DataRecyclerCell {
 
 		mTextView = new TextView(mAdapter.getContext());
 		ViewGroup.LayoutParams textViewParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		int textViewPadding = DeviceUtil.dip2px(18);
+		int textViewPadding = dip2px(18);
 		mTextView.setLayoutParams(textViewParams);
 		mTextView.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
 		mTextView.setPadding(textViewPadding, textViewPadding, textViewPadding, textViewPadding);

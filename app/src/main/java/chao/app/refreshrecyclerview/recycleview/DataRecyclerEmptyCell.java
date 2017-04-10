@@ -5,7 +5,8 @@ import android.graphics.Color;
 import android.view.Gravity;
 import android.view.View;
 
-import com.jobs.lib_v1.settings.LocalStrings;
+import chao.app.refreshrecyclerview.R;
+
 
 /**
  * 默认的空单元格
@@ -26,7 +27,7 @@ public final class DataRecyclerEmptyCell extends DataRecyclerDataCell {
 	public final void bindData() {
 		String message = mAdapter.getRecyclerData().message.trim();
 		if (message.length() < 1) {
-			message = LocalStrings.common_text_data_is_empty;
+			message = mAdapter.getContext().getString(R.string.data_recycler_data_empty);
 		}
 
 		mTextView.setText(message);

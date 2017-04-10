@@ -1,6 +1,7 @@
 package chao.app.refreshrecyclerview.recycleview;
 
-import com.jobs.lib_v1.data.DataItemResult;
+
+import chao.app.refreshrecyclerview.recycleview.data.DataItemResult;
 
 /**
  * DataListView 网络数据加载约定

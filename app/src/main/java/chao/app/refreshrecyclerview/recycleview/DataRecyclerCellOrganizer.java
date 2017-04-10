@@ -1,10 +1,11 @@
 package chao.app.refreshrecyclerview.recycleview;
 
+import android.util.Log;
 import android.view.View;
 
-import com.jobs.lib_v1.app.AppUtil;
-
 import java.lang.reflect.Constructor;
+
+import chao.app.protocol.LogHelper;
 
 /**
  * @author chao.qin
@@ -12,6 +13,8 @@ import java.lang.reflect.Constructor;
  */
 
 public final class DataRecyclerCellOrganizer {
+
+    private static final String TAG = DataRecyclerCellOrganizer.class.getSimpleName();
 
     private DataRecyclerAdapter mAdapter = null;
     private Class<?> mCellClass = null;
@@ -150,7 +153,6 @@ public final class DataRecyclerCellOrganizer {
             return null;
         }
 
-        AppUtil.error(this, "Create cell: " + AppUtil.getClassName(cell));
 
         cell.initAdapterAndCellViewForOnce(mAdapter);
         return cell;
@@ -166,7 +168,7 @@ public final class DataRecyclerCellOrganizer {
      */
     private final DataRecyclerCell createCellFromClass(Class<?> cls){
         if(!DataRecyclerCell.class.isAssignableFrom(cls)){
-            AppUtil.error(this, "Invalid cell class: " + cls.toString());
+            LogHelper.e(TAG, "Invalid cell class: " + cls.toString());
             return null;
         }
 
@@ -176,7 +178,7 @@ public final class DataRecyclerCellOrganizer {
             try {
                 return (DataRecyclerCell)cls.newInstance();
             } catch (Throwable e) {
-                AppUtil.print(e);
+                Log.e(TAG,"",e);
             }
         } else {
             for (int i = 0; i < cons.length; i++) {
@@ -189,7 +191,7 @@ public final class DataRecyclerCellOrganizer {
                         con.setAccessible(true);
                     }
                 } catch(Throwable e){
-                    AppUtil.print(e);
+                    Log.e(TAG,"",e);
                 }
 
                 //
@@ -201,7 +203,7 @@ public final class DataRecyclerCellOrganizer {
                     try {
                         return (DataRecyclerCell)con.newInstance();
                     } catch (Throwable e) {
-                        AppUtil.print(e);
+                        Log.e(TAG,"",e);
                     }
                 } else if(1 == paramClasses.length){
                     Class<?> paramCls = paramClasses[0];
@@ -233,9 +235,7 @@ public final class DataRecyclerCellOrganizer {
                     if(null != cell){
                         return cell;
                     } else {
-                        if(AppUtil.allowDebug()){
-                            AppUtil.error(this, "Invalid cell constructor: " + con.getName());
-                        }
+                        LogHelper.e(TAG, "Invalid cell constructor: " + con.getName());
                     }
                 } else {
                     if (2 == paramClasses.length && null != mCellClassConstructorParameter) { // 两个参数的第二个参数必须为自定义参数
@@ -271,16 +271,12 @@ public final class DataRecyclerCellOrganizer {
                         }
                     }
 
-                    if(AppUtil.allowDebug()){
-                        AppUtil.error(this, "Too much parameters for cell constructor: " + con.getName());
-                    }
+                    LogHelper.e(TAG, "Too much parameters for cell constructor: " + con.getName());
                 }
             }
         }
 
-        if(AppUtil.allowDebug()){
-            AppUtil.error(this, "Invalid cell class: " + cls.getName());
-        }
+        LogHelper.e(TAG, "Invalid cell class: " + cls.getName());
 
         return null;
     }
@@ -305,7 +301,7 @@ public final class DataRecyclerCellOrganizer {
             try {
                 return (DataRecyclerCell) con.newInstance(paramObject, mCellClassConstructorParameter);
             } catch (Throwable e) {
-                AppUtil.print(e);
+                Log.e(TAG,"",e);
             }
         }
 
@@ -328,7 +324,7 @@ public final class DataRecyclerCellOrganizer {
             try {
                 return (DataRecyclerCell)con.newInstance(paramObject);
             } catch (Throwable e) {
-                AppUtil.print(e);
+                Log.e(TAG,"",e);
             }
         }
 

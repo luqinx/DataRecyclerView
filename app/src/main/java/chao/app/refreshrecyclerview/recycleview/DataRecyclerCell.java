@@ -2,6 +2,7 @@ package chao.app.refreshrecyclerview.recycleview;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,9 +11,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.jobs.lib_v1.app.AppUtil;
-import com.jobs.lib_v1.data.DataItemDetail;
-import com.jobs.lib_v1.device.DeviceUtil;
+import chao.app.refreshrecyclerview.recycleview.data.DataItemDetail;
+
 
 /**
  * 单元格复用抽象类：视图、数据和ViewHolder的合集。
@@ -42,6 +42,7 @@ import com.jobs.lib_v1.device.DeviceUtil;
  * @since 2013-12-18
  */
 public abstract class DataRecyclerCell {
+    private static final String TAG = DataRecyclerCell.class.getSimpleName();
     /**
      * 单元格所在 DataListView 对应的 adapter
      * 这个值在 bindData 和  bindView 方法调用时，是不可能为空的
@@ -89,7 +90,8 @@ public abstract class DataRecyclerCell {
                 mCellView = createCellView();
             }
         } catch (Throwable e) {
-            AppUtil.print(e);
+            Log.e(TAG,"toBytes error",e);
+
         }
 
         // 创建单元格视图失败则会再创建一个默认单元格视图
@@ -126,7 +128,7 @@ public abstract class DataRecyclerCell {
 
         TextView textViewLayout = new TextView(mAdapter.getContext());
         ViewGroup.LayoutParams textViewParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        int textViewPadding = DeviceUtil.dip2px(20);
+        int textViewPadding = dip2px(20);
         textViewLayout.setLayoutParams(textViewParams);
         textViewLayout.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
         textViewLayout.setPadding(textViewPadding, textViewPadding, textViewPadding, textViewPadding);
@@ -137,6 +139,10 @@ public abstract class DataRecyclerCell {
         rootLayout.addView(textViewLayout);
 
         return rootLayout;
+    }
+
+    public int dip2px(int dip) {
+        return (int) (mAdapter.getContext().getResources().getDisplayMetrics().density * dip + 0.5f);
     }
 
     /**
