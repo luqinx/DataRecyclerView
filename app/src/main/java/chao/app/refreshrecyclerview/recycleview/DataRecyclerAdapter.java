@@ -422,7 +422,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
                 return;
             }
             //点击的不是Item,可能是出错，为空或者下一页
-            if (getItemPosition(position) >= mRecyclerData.getDataCount()) {
+            if (getItemPosition(position) >= mRecyclerData.getDataCount() && !isStatus(IDLE)) {
                 startLoadingData();
                 return;
             }

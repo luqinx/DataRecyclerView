@@ -59,7 +59,7 @@ public class RefreshRecyclerViewTestFragment extends Fragment {
                 DataItemDetail detail = new DataItemDetail();
                 DataItemResult result = new DataItemResult();
                 result.maxCount = 4;
-                pageSize = 30;
+                pageSize = 4;
 
 //                int randNumber = (int) (3 * Math.random());
 //                if (randNumber % 3 == 0) {
