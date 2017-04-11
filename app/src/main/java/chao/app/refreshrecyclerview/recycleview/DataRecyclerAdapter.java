@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -43,9 +44,9 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
     static final int REFRESH_FAILED = 1 << 18;  //刷新失败
     static final int REFRESH_DONE = 1 << 19;    //刷新完成
     static final int REFRESH_EMPTY = 1 << 20;   //数据为空
-    static final int REFRESH_PREPARE_REFRESHING = 1 << 21;    //初始化状态
+    static final int REFRESH_PREPARE_REFRESHING = 1 << 21;    // 准备刷新状态，释放刷新
     static final int REFRESH_PULL = 1 << 22;    //下拉，还没到达刷新
-    static final int REFRESH_CANCEL = 1 << 23;    //下拉，还没到达刷新
+    static final int REFRESH_CANCEL = 1 << 23;    // 刷新被取消
 
 
     private static final int REFRESH_STATE_MASK = 0xffff0000;
@@ -93,6 +94,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
     private DataTask mDataRefreshTask;
     private boolean mPullRefreshEnabled = true;
     private boolean mAutoLoadEnabled = true;
+    private boolean mRefreshData = false;
 
 
     DataRecyclerAdapter(DataRecyclerView recyclerView) {
@@ -115,6 +117,31 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
     public void onRefreshFailed() {
         if (mFooterCell != null) {
             mFooterCell.loadStatusChanged(ERROR);
+        }
+    }
+
+    public void onGlobalLayoutChanged() {
+        if (mRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+            return;
+        }
+        if (mHeaderCell != null && Math.abs(mHeaderCell.getCellBottom()) > 0 && mHeaderCell.isHeaderScrollException()) {
+            mHeaderCell.setHeaderScrollException(false);
+            shrinkHeader(true);
+        }
+//        int status = mStatus;
+//        toRefreshStatus(REFRESH_IDLE);
+//        toRefreshStatus(status & REFRESH_STATE_MASK);
+    }
+
+    public void onTouchEvent(MotionEvent e) {
+        switch (e.getAction()) {
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                if (mHeaderCell.atTop() && isStatus(REFRESH_PREPARE_REFRESHING)) {
+                    startRefreshData();
+                    return;
+                }
+                break;
         }
     }
 
@@ -241,23 +268,24 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
     }
 
     void resizeFooterView() {
-        if (isStatus(IDLE) && isStatus(REFRESH_IDLE) && getDataCount() > 0) {
+        int visibleCount = mRecyclerView.getChildCount();
+        int visibleItemHeight = 0;
+        for (int i = 0;i < visibleCount; i++) {
+            View view = mRecyclerView.getChildAt(i);
+            if (view == mFooterCell.getCellView() || view == mHeaderCell.getCellView()) {
+                continue;
+            }
+            visibleItemHeight += view.getHeight();
+        }
+
+        if (isStatus(IDLE) && isStatus(REFRESH_IDLE) && visibleItemHeight > mRecyclerView.getHeight()) {
             mFooterCell.setHeight(0);
             return;
         }
-        if (!isRefreshEnabled()) {
+        if (!isRefreshEnabled() || mFooterCell == null) {
             return;
         }
-        int visibleCount = mRecyclerView.getChildCount();
         if (visibleCount > mRecyclerViewVisibleItemCount) { //可见的列表项增加,重新计算footer高度
-            int visibleItemHeight = 0;
-            for (int i = 0;i < visibleCount; i++) {
-                View view = mRecyclerView.getChildAt(i);
-                if (view == mFooterCell.getCellView() || view == mHeaderCell.getCellView()) {
-                    continue;
-                }
-                visibleItemHeight += view.getHeight();
-            }
             mFooterCell.setAdviceHeight(mRecyclerView.getHeight() - visibleItemHeight);
             mRecyclerViewVisibleItemCount = visibleCount;
         }
@@ -291,6 +319,10 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
             notifyDataSetChanged();
             return;
         }
+        mRecyclerData.clear();
+        mRecyclerViewVisibleItemCount = 0;
+        mCurrentPage = NO_PAGE;
+        mRefreshData = true;
         readyForRefresh(false);
     }
 
@@ -408,8 +440,10 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
 
         @Override
         public void onClick(View v) {
-            if (isStatus(EMPTY | REFRESH_EMPTY) && mEmptyClickListener != null) {
-                mEmptyClickListener.onEmptyClick();
+            if (isStatus(EMPTY | REFRESH_EMPTY)) {
+                if (mEmptyClickListener != null) {
+                    mEmptyClickListener.onEmptyClick();
+                }
                 return;
             }
 
@@ -520,6 +554,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
         notifyDataSetChanged();
 
         toRefreshStatus(REFRESH_DONE);
+        toLoadStatus(hasMore()?MORE:IDLE);
     }
 
     private synchronized void appendLoadData(DataItemResult appendData, int loadPage) {
@@ -620,7 +655,9 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
         synchronized (mStatusLock) {
             if (mStatus == status) return;
 
-            mStatus = status;
+            toRefreshStatus(status);
+
+            toLoadStatus(status);
 
             LogHelper.i(TAG,"to status : " + statusText(status) + "(0x" + Integer.toHexString(status) + ")");
 
@@ -752,20 +789,19 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
             }
 
             //手动快速滑动，不能进入到刷新状态
-            if (mHeaderCell.overFling() && !isStatus(REFRESH_PREPARE_REFRESHING) && mRecyclerView.getScrollState() == RecyclerView.SCROLL_STATE_SETTLING) {
+            if (mHeaderCell.overFling() && !isStatus(REFRESH_PREPARE_REFRESHING) && mRecyclerView.getScrollState() == RecyclerView.SCROLL_STATE_SETTLING && dy > 0) {
                 mRecyclerView.stopScroll();
                 shrinkHeader(true);
                 return;
             }
 
-            if (mHeaderCell.atTop() && isStatus(REFRESH_PREPARE_REFRESHING)) {
+            if (mHeaderCell.atTop() && isStatus(REFRESH_PREPARE_REFRESHING) && mRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_DRAGGING) {
                 startRefreshData();
                 return;
             }
 
             if (!mHeaderCell.overHeader() && !isStatus(REFRESH_REFRESHING)) {
                 toRefreshStatus(REFRESH_IDLE);
-
 
                 if (isStatus(IDLE | MORE) && atPreLoadingPosition && hasMore()) {
                     startLoadingData();
@@ -778,7 +814,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
 //                mHeaderCell.moveToTop();
 //            }
 
-            if (isStatus(REFRESH_PREPARE_REFRESHING) && !mHeaderCell.overHeaderRefresh()) {
+            if (isStatus(REFRESH_PREPARE_REFRESHING) && !mHeaderCell.overHeaderRefresh() && !mRefreshData) {
                 toRefreshStatus(REFRESH_PULL);
             }
         }
@@ -797,20 +833,24 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
 
     void readyForRefresh(boolean animation) {
         toRefreshStatus(REFRESH_PREPARE_REFRESHING);
-        moveToTop(animation);
+        spreadHeader(animation);
     }
 
     /**
      *  完全展开 Header
      */
-    private void moveToTop(boolean animation) {
+    private void spreadHeader(boolean animation) {
 //        if (!mHeaderCell.overHeader() || !mHeaderCell.overHeaderRefresh()) {
 //            return;
 //        }
+        if (DEBUG) {
+            LogHelper.d(TAG, "spreadHeader " + this);
+        }
+        int deltaY = -(mHeaderCell.getHeight() - mHeaderCell.getCellBottom());
         if (animation) {
-            mRecyclerView.smoothScrollBy(0, -mHeaderCell.getScrollY());
+            mRecyclerView.smoothScrollBy(0, deltaY);
         } else {
-            mRecyclerView.scrollBy(0,-mHeaderCell.getScrollY());
+            mRecyclerView.scrollBy(0,deltaY);
         }
     }
 
@@ -818,11 +858,11 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
      *  收缩 Header
      */
     void shrinkHeader(boolean animation) {
-        int offsetY = mHeaderCell.idlePosition() - mHeaderCell.getScrollY();
+        int offsetY = mHeaderCell.getCellBottom();
         if (animation) {
-            mRecyclerView.smoothScrollBy(0, offsetY); // +1 使refresh_status进入idle状态
+            mRecyclerView.smoothScrollBy(0, offsetY + 1); // +1 使refresh_status进入idle状态
         } else {
-            mRecyclerView.scrollBy(0,offsetY);
+            mRecyclerView.scrollBy(0,offsetY + 1);
         }
     }
 

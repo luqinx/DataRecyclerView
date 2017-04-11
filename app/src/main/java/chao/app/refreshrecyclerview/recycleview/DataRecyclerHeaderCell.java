@@ -38,35 +38,24 @@ public class DataRecyclerHeaderCell extends DataRecyclerCell {
     private static final int REFRESH_PREPARE_REFRESHING = DataRecyclerAdapter.REFRESH_PREPARE_REFRESHING;
 
 
-    private static final int REFRESH_STATUS_DELAY = 500;
+    private static final int REFRESH_STATUS_DELAY = 100;
 
     private TextView mText = null;
     private ProgressBar mProgressBar;
-
-    private int mScrollY;
 
     private DataRecyclerView mDataRecyclerView;
     private int mStatus = REFRESH_IDLE;
 
     private HeaderHandler mHandler = new HeaderHandler();
+    private int mScrollY;
+    private boolean mHeaderScrollException = false;
 
     void detach() {
         mHandler.removeCallbacksAndMessages(null);
     }
 
     private int deltaY;
-    private final Object deltaLock = new Object();
 
-    public  int computeScaledDyLock(int dy) {
-        synchronized (deltaLock) {
-            if (isStatus(REFRESH_PULL) && dy < 0) {
-                deltaY += (int) (dy / 2.5);
-            } else {
-                deltaY += dy;
-            }
-            return deltaY;
-        }
-    }
 
     public  int computeScaledDy(int dy) {
         deltaY = dy;
@@ -141,15 +130,15 @@ public class DataRecyclerHeaderCell extends DataRecyclerCell {
     }
 
     int idlePosition() {
-        return getHeight() + 1;
+        return 0;
     }
 
-    int getScrollY() {
-        return mScrollY;
+    int getCellBottom() {
+        return getCellView().getBottom();
     }
 
     private void refreshIdle() {
-        if (idlePosition() == mScrollY) {
+        if (idlePosition() == getCellBottom()) {
             return;
         }
 //        mDataRecyclerView.smoothScrollBy(0,mScrollY - getHeight());
@@ -205,7 +194,7 @@ public class DataRecyclerHeaderCell extends DataRecyclerCell {
 
     //松手滑动到达的可滑动的最大阈值，松手后的滑动超过头部线的阈值就不再允许继续向上滑
     public boolean overFling() {
-        if (overHeader() && mScrollY >= getHeight() * 3 / 4) {
+        if (overHeader() && getCellBottom() <= getHeight() / 4) {
             return true;
         }
         return false;
@@ -214,31 +203,34 @@ public class DataRecyclerHeaderCell extends DataRecyclerCell {
 
     //到达头部刷线，到达这个线或再往上进入刷新状态
     public boolean overHeaderRefresh() {
-        if (overHeader() && mScrollY <= getHeight() / 5) {
+        if (overHeader() && getCellBottom() >= getHeight() * 4 / 5) {
             return true;
         }
         return false;
     }
 
+    public boolean isHeaderScrollException() {
+        return mHeaderScrollException;
+    }
+
+    public void setHeaderScrollException(boolean headerScrollException) {
+        mHeaderScrollException = headerScrollException;
+        mScrollY = getHeight() - getCellBottom();
+    }
 
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         mScrollY += dy;
-//        mScrollY += deltaY;
-        if (dy > 0 && mScrollY == idlePosition()) {
+        int realScrollY = getHeight() - getCellBottom();
+        //检查实际滑动与计算的滑动距离是否一直， 如果不一致，说明可能是由于界面切换导致了头部收缩滑动动画被停止
+        if (!isHeaderScrollException() && mScrollY <= getHeight() + 1 && mScrollY > realScrollY && realScrollY != getHeight()) {
+            setHeaderScrollException(true);
+        }
+
+        if (dy > 0 && getCellBottom() == idlePosition()) {
             onHeaderShrank();
         }
     }
 
-    public void onScrolledLock(RecyclerView recyclerView, int dx, int dy) {
-//        mScrollY += dy;
-        synchronized (deltaLock) {
-            mScrollY += deltaY;
-            deltaY = 0;
-            if (dy > 0 && mScrollY == idlePosition()) {
-                onHeaderShrank();
-            }
-        }
-    }
 
     private void onHeaderShrank() {
         mAdapter.resizeFooterView();
@@ -303,8 +295,7 @@ public class DataRecyclerHeaderCell extends DataRecyclerCell {
     }
 
     public boolean atTop(){
-        if (mScrollY <= 0) {
-            mScrollY = 0;
+        if (getCellBottom() - getHeight() < 10) {
             return true;
         }
         return false;

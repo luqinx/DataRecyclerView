@@ -32,8 +32,8 @@ public class RefreshRecyclerViewTestFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.refresh_recyclerview_fragment,container,false);
-        final DataRecyclerView recyclerView = (DataRecyclerView) view.findViewById(R.id.data_recycler_view);
-        recyclerView.setDataRecyclerCell(TestCell.class,this);
+        final DataRecyclerView dataRecyclerView = (DataRecyclerView) view.findViewById(R.id.data_recycler_view);
+        dataRecyclerView.setDataRecyclerCell(TestCell.class,this);
         DataItemDetail detail = new DataItemDetail();
         DataItemResult result = new DataItemResult();
 
@@ -45,19 +45,20 @@ public class RefreshRecyclerViewTestFragment extends Fragment {
 //        }
 //
 //        recyclerView.appendData(result);
-        recyclerView.setOnItemClickListener(new OnItemClickListener() {
+        dataRecyclerView.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClickListener(RecyclerView recyclerView, View view, int position) {
                 LogHelper.i("chao.qin","position : "+position);
+                dataRecyclerView.refreshData();
             }
         });
-        recyclerView.setDataLoader(new DataLoader() {
+        dataRecyclerView.setDataLoader(new DataLoader() {
             @Override
             public DataItemResult fetchData(DataRecyclerAdapter adapter, int pageAt, int pageSize) {
                 SystemClock.sleep(NETWORK_DELAY);
                 DataItemDetail detail = new DataItemDetail();
                 DataItemResult result = new DataItemResult();
-                result.maxCount = 4;
+                result.maxCount = 40;
                 pageSize = 4;
 
 //                int randNumber = (int) (3 * Math.random());

@@ -159,7 +159,7 @@ public class DataRecyclerFooterCell extends DataRecyclerCell {
         if (mContainer.getHeight() == height) {
             return;
         }
-//        LogHelper.i(TAG,"setFooterHeight : " + height);
+        LogHelper.i(TAG,"setFooterHeight : " + height);
         ViewGroup.LayoutParams lp = mContainer.getLayoutParams();
         lp.height = height;
         mContainer.setLayoutParams(lp);
