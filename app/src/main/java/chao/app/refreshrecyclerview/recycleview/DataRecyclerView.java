@@ -12,7 +12,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
+
 import chao.app.refreshrecyclerview.R;
 import chao.app.refreshrecyclerview.recycleview.data.DataItemResult;
 
@@ -64,13 +64,6 @@ public class DataRecyclerView extends RecyclerView {
         setDivider(R.drawable.default_recycle_drawable);//默认分割线
 
         addOnScrollListener(mDataAdapter.new LoadMoreScrollListener());
-
-        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                mDataAdapter.onGlobalLayoutChanged();
-            }
-        });
     }
 
     @Override

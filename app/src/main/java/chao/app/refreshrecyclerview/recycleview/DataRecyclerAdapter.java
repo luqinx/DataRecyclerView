@@ -120,18 +120,6 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public void onGlobalLayoutChanged() {
-        if (mRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
-            return;
-        }
-        if (mHeaderCell != null && Math.abs(mHeaderCell.getCellBottom()) > 0 && mHeaderCell.isHeaderScrollException()) {
-            mHeaderCell.setHeaderScrollException(false);
-            shrinkHeader(true);
-        }
-//        int status = mStatus;
-//        toRefreshStatus(REFRESH_IDLE);
-//        toRefreshStatus(status & REFRESH_STATE_MASK);
-    }
 
     public void onTouchEvent(MotionEvent e) {
         switch (e.getAction()) {
@@ -784,7 +772,6 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
 
             boolean atPreLoadingPosition = totalCount - lastVisibleItemPosition < visibleItemCount; //滚动到达预加载的位置
 
-            mHeaderCell.onScrolled(recyclerView, dx, dy);
 
 //            LogHelper.i(TAG,"onScrolled.getScrollY : " + mHeaderCell.getScrollY());
 
@@ -820,6 +807,10 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
 
             if (isStatus(REFRESH_PREPARE_REFRESHING) && !mHeaderCell.overHeaderRefresh() && !mRefreshData) {
                 toRefreshStatus(REFRESH_PULL);
+            }
+
+            if (mHeaderCell.getScrollY() == 0) {
+                resizeFooterView();
             }
         }
 

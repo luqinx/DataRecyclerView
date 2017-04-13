@@ -47,8 +47,6 @@ public class DataRecyclerHeaderCell extends DataRecyclerCell {
     private int mStatus = REFRESH_IDLE;
 
     private HeaderHandler mHandler = new HeaderHandler();
-    private int mScrollY;
-    private boolean mHeaderScrollException = false;
 
     void detach() {
         mHandler.removeCallbacksAndMessages(null);
@@ -63,10 +61,18 @@ public class DataRecyclerHeaderCell extends DataRecyclerCell {
             } else {
                 deltaY = Math.max(Math.abs((int) (dy / 2.5)),1);
             }
+            if (getScrollY() < 10) {
+                deltaY = getScrollY();
+            }
             deltaY = dy > 0?deltaY:-deltaY;
         }
         return deltaY;
     }
+
+    int getScrollY() {
+        return getCellBottom();
+    }
+
 
     @SuppressLint("HandlerLeak")
     private class HeaderHandler extends Handler {
@@ -131,19 +137,13 @@ public class DataRecyclerHeaderCell extends DataRecyclerCell {
         mAdapter.shrinkHeader(animation);
     }
 
-    int idlePosition() {
-        return 0;
-    }
 
     int getCellBottom() {
         return getCellView().getBottom();
     }
 
     private void refreshIdle() {
-        if (idlePosition() == getCellBottom()) {
-            return;
-        }
-//        mDataRecyclerView.smoothScrollBy(0,mScrollY - getHeight());
+
     }
 
     private void refreshReady() {
@@ -209,33 +209,6 @@ public class DataRecyclerHeaderCell extends DataRecyclerCell {
             return true;
         }
         return false;
-    }
-
-    public boolean isHeaderScrollException() {
-        return mHeaderScrollException;
-    }
-
-    public void setHeaderScrollException(boolean headerScrollException) {
-        mHeaderScrollException = headerScrollException;
-        mScrollY = getHeight() - getCellBottom();
-    }
-
-    public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-        mScrollY += dy;
-        int realScrollY = getHeight() - getCellBottom();
-        //检查实际滑动与计算的滑动距离是否一直， 如果不一致，说明可能是由于界面切换导致了头部收缩滑动动画被停止
-        if (!isHeaderScrollException() && mScrollY <= getHeight() + 1 && mScrollY > realScrollY && realScrollY != getHeight()) {
-            setHeaderScrollException(true);
-        }
-
-        if (dy > 0 && getCellBottom() == idlePosition()) {
-            onHeaderShrank();
-        }
-    }
-
-
-    private void onHeaderShrank() {
-        mAdapter.resizeFooterView();
     }
 
     public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
