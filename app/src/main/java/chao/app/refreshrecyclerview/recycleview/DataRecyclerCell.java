@@ -210,5 +210,9 @@ public abstract class DataRecyclerCell {
 //        mCellView.requestLayout();
         mCellView.invalidate();
     }
+
+    public void setBackgroundResource(int resourceId) {
+        mCellView.setBackgroundResource(resourceId);
+    }
 }
 

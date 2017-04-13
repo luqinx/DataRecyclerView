@@ -154,6 +154,8 @@ public class DataRecyclerFooterCell extends DataRecyclerCell {
         return mContainer;
     }
 
+
+
     @Override
     void setHeight(int height) {
         if (mContainer.getHeight() == height) {

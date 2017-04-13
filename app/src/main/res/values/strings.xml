@@ -10,4 +10,11 @@
     <string name="recycler_view_load_more_text">下一页</string>
     <string name="recycler_view_ready_text">释放立即刷新</string>
     <string name="data_recycler_data_empty">数据为空</string>
+    <string name="load_advance">预加载演示</string>
+    <string name="load_standard">正常加载演示</string>
+    <string name="load_empty">空演示</string>
+    <string name="load_error">出错演示</string>
+    <string name="load_manual">手动刷新</string>
+    <string name="load_forbidden">禁止刷新演示</string>
+    <string name="empty_message">啥也没有</string>
 </resources>

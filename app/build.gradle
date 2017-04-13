@@ -29,7 +29,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:recyclerview-v7:23.2.1'
 
-    compile 'com.github.chaooooooo.DebugHelper:protocol:v0.1.4'
-    compile 'com.github.chaooooooo.DebugHelper:DebugHelper:v0.1.4'
+    compile 'com.github.chaooooooo.DebugHelper:protocol:v0.1.8'
+    compile 'com.github.chaooooooo.DebugHelper:DebugHelper:v0.1.8'
     testCompile 'junit:junit:4.12'
 }

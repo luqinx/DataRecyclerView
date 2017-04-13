@@ -11,8 +11,6 @@ import android.support.v7.widget.RecyclerView;
 
 public class DataLinearLayoutManager extends LinearLayoutManager {
 
-    private final boolean use = false;
-
     private DataRecyclerHeaderCell mHeaderCell;
 
     void setHeaderCell(DataRecyclerHeaderCell cell) {
@@ -26,9 +24,6 @@ public class DataLinearLayoutManager extends LinearLayoutManager {
 
     @Override
     public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
-        if (!use) {
-            return super.scrollVerticallyBy(dy,recycler,state);
-        }
         int scaledDy = mHeaderCell.computeScaledDy(dy);
         return super.scrollVerticallyBy(scaledDy,recycler,state) + dy - scaledDy;
     }

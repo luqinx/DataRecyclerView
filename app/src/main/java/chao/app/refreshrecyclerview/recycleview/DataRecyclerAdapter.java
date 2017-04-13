@@ -272,7 +272,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
         int visibleItemHeight = 0;
         for (int i = 0;i < visibleCount; i++) {
             View view = mRecyclerView.getChildAt(i);
-            if (view == mFooterCell.getCellView() || view == mHeaderCell.getCellView()) {
+            if (mFooterCell == null || view == mFooterCell.getCellView() || view == mHeaderCell.getCellView()) {
                 continue;
             }
             visibleItemHeight += view.getHeight();
@@ -323,7 +323,8 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
         mRecyclerViewVisibleItemCount = 0;
         mCurrentPage = NO_PAGE;
         mRefreshData = true;
-        readyForRefresh(false);
+        notifyDataSetChanged();
+        startRefreshData();
     }
 
     private void startRefreshData() {
@@ -455,8 +456,10 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
                 return;
             }
             //点击的不是Item,可能是出错，为空或者下一页
-            if (getItemPosition(position) >= mRecyclerData.getDataCount() && !isStatus(IDLE)) {
-                startLoadingData();
+            if (getItemPosition(position) >= mRecyclerData.getDataCount()) {
+                if (!isStatus(IDLE)){
+                    startLoadingData();
+                }
                 return;
             }
 
@@ -533,6 +536,7 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
             mRecyclerData.message = appendData.message;
             mRecyclerData.hasError = true;
             toRefreshStatus(REFRESH_FAILED);
+            toLoadStatus(ERROR);
             return;
         }
 

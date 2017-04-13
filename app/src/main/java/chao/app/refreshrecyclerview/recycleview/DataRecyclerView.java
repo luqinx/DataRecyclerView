@@ -157,10 +157,6 @@ public class DataRecyclerView extends RecyclerView {
         mDataAdapter.setEmptyCellClass(emptyCellClass,cellClassConstructorParameter);
     }
 
-    public void setOnItemEmptyClickListener(OnItemEmptyClickListener listener) {
-        //// TODO: 2017/4/7 去掉
-    }
-
     private class DividerDecoration extends ItemDecoration {
 
         Drawable drawable;//不支持ColorDrawable

@@ -54,14 +54,16 @@ public class DataRecyclerHeaderCell extends DataRecyclerCell {
         mHandler.removeCallbacksAndMessages(null);
     }
 
-    private int deltaY;
-
 
     public  int computeScaledDy(int dy) {
-        deltaY = dy;
-        if (isStatus(REFRESH_PULL) && dy < 0) {
-            deltaY = (int) (dy / 2.5);
-//            deltaY = dy;
+        int deltaY = dy;
+        if (isStatus(REFRESH_PULL | REFRESH_PREPARE_REFRESHING) && dy < 0) {
+            if (mDataRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_DRAGGING) {
+                deltaY = Math.min(Math.abs(dy * 2), getCellBottom());
+            } else {
+                deltaY = Math.max(Math.abs((int) (dy / 2.5)),1);
+            }
+            deltaY = dy > 0?deltaY:-deltaY;
         }
         return deltaY;
     }
