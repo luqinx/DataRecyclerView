@@ -211,8 +211,12 @@ public abstract class DataRecyclerCell {
         mCellView.invalidate();
     }
 
-    public void setBackgroundResource(int resourceId) {
-        mCellView.setBackgroundResource(resourceId);
+    public void setBackgroundColor(int color) {
+        mCellView.setBackgroundColor(color);
+    }
+
+    public void setBackgroundResource(int selectorDrawableId) {
+        mCellView.setBackgroundResource(selectorDrawableId);
     }
 }
 

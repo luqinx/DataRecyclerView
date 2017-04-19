@@ -19,6 +19,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.main_fragment,container,false);
         view.findViewById(R.id.load_advance).setOnClickListener(this);
+        view.findViewById(R.id.load_multi_cell).setOnClickListener(this);
         view.findViewById(R.id.load_empty).setOnClickListener(this);
         view.findViewById(R.id.load_error).setOnClickListener(this);
         view.findViewById(R.id.load_forbidden).setOnClickListener(this);
@@ -32,6 +33,9 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.load_advance:
                 AdvanceModeFragment.show(getActivity());
+                break;
+            case R.id.load_multi_cell:
+                MultiCellModeFragment.show(getActivity());
                 break;
             case R.id.load_empty:
                 EmptyModeFragment.show(getActivity());

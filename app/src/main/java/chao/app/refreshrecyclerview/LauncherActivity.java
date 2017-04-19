@@ -6,7 +6,7 @@ import chao.app.uidebug.annotations.DebugSwitchON;
 import chao.app.uidebug.annotations.MainClass;
 
 @DebugSwitchON(true)
-@DebugClass(RefreshRecyclerViewTestFragment.class)
+@DebugClass(MainFragment.class)
 @MainClass(MainFragment.class)
 public class LauncherActivity extends UIDebugLauncherActivity {
 

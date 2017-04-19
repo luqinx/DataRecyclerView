@@ -54,16 +54,12 @@ public class DataRecyclerHeaderCell extends DataRecyclerCell {
 
 
     public  int computeScaledDy(int dy) {
+        if (!mAdapter.isRefreshEnabled()) {
+            return dy;
+        }
         int deltaY = dy;
-        if (isStatus(REFRESH_PULL | REFRESH_PREPARE_REFRESHING) && dy < 0) {
-            if (mDataRecyclerView.getScrollState() != RecyclerView.SCROLL_STATE_DRAGGING) {
-                deltaY = Math.min(Math.abs(dy * 2), getCellBottom());
-            } else {
-                deltaY = Math.max(Math.abs((int) (dy / 2.5)),1);
-            }
-            if (getScrollY() < 10) {
-                deltaY = getScrollY();
-            }
+        if (overHeader() && isStatus(REFRESH_PULL | REFRESH_PREPARE_REFRESHING) && dy < 0 && mDataRecyclerView.getScrollState() == RecyclerView.SCROLL_STATE_DRAGGING) {
+            deltaY = Math.max(Math.abs((int) (dy / 2.5)),1);
             deltaY = dy > 0?deltaY:-deltaY;
         }
         return deltaY;
@@ -92,12 +88,6 @@ public class DataRecyclerHeaderCell extends DataRecyclerCell {
             Message message = obtainMessage();
             message.what = what;
             message.sendToTarget();
-        }
-
-        private void sendHeaderMessageDelay(int what) {
-            Message message = obtainMessage();
-            message.what = what;
-            sendEmptyMessageDelayed(what,REFRESH_STATUS_DELAY);
         }
 
         @Override
@@ -165,20 +155,20 @@ public class DataRecyclerHeaderCell extends DataRecyclerCell {
     private void refreshDone() {
         mText.setText(R.string.recycler_view_refreshed_text);
         mProgressBar.setVisibility(View.INVISIBLE);
-        mHandler.sendHeaderMessageDelay(HeaderHandler.WHAT_CLOSE_HEADER);
+        mHandler.sendHeaderMessage(HeaderHandler.WHAT_CLOSE_HEADER);
     }
 
     private void refreshFailed() {
         mText.setText(R.string.recycler_view_refresh_failed_text);
         mProgressBar.setVisibility(View.INVISIBLE);
-        mHandler.sendHeaderMessageDelay(HeaderHandler.WHAT_CLOSE_HEADER);
+        mHandler.sendHeaderMessage(HeaderHandler.WHAT_CLOSE_HEADER);
         mAdapter.onRefreshFailed();
     }
 
     private void refreshDataEmpty() {
         mText.setText(R.string.recycler_view_refresh_empty_text);
         mProgressBar.setVisibility(View.INVISIBLE);
-        mHandler.sendHeaderMessageDelay(HeaderHandler.WHAT_CLOSE_HEADER);
+        mHandler.sendHeaderMessage(HeaderHandler.WHAT_CLOSE_HEADER);
     }
 
     void setRecyclerView(DataRecyclerView recyclerView) {

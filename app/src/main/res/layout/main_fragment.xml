@@ -12,6 +12,12 @@
         android:layout_height="40dp" />
 
     <Button
+        android:id="@+id/load_multi_cell"
+        android:text="@string/load_multi_cell"
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+
+    <Button
         android:id="@+id/load_advance"
         android:text="@string/load_advance"
         android:layout_width="match_parent"

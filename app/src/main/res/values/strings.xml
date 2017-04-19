@@ -17,4 +17,5 @@
     <string name="load_manual">手动刷新</string>
     <string name="load_forbidden">禁止刷新演示</string>
     <string name="empty_message">啥也没有</string>
+    <string name="load_multi_cell">多类型cell演示(替代itemViewType)</string>
 </resources>

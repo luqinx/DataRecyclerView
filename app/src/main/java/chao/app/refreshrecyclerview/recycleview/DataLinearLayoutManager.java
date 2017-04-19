@@ -24,6 +24,9 @@ public class DataLinearLayoutManager extends LinearLayoutManager {
 
     @Override
     public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
+        if (mHeaderCell == null) {
+            return dy;
+        }
         int scaledDy = mHeaderCell.computeScaledDy(dy);
         return super.scrollVerticallyBy(scaledDy,recycler,state) + dy - scaledDy;
     }

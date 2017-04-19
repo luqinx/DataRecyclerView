@@ -30,6 +30,7 @@ public class DataRecyclerFooterCell extends DataRecyclerCell {
     private static final int MORE = DataRecyclerAdapter.MORE;         //  0010000
 
     private static final int DEFAULT_FOOTER_VIEW_HEIGHT = 40;
+    private static final int FOOTER_DEFAULT_COLOR = android.R.color.white;
 
     private TextView mLoadMessageView;
     private ProgressBar mProgressBar;
@@ -58,10 +59,13 @@ public class DataRecyclerFooterCell extends DataRecyclerCell {
             msg.sendToTarget();
         }
 
-
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            setBackgroundResource(mAdapter.getSelector());
+            if (msg.what == WHAT_LOAD_IDLE) {
+                setBackgroundResource(FOOTER_DEFAULT_COLOR);
+            }
             switch (msg.what) {
                 case WHAT_LOAD_EMPTY:
                     showLoadEmpty();
@@ -115,6 +119,11 @@ public class DataRecyclerFooterCell extends DataRecyclerCell {
         mLoadMessageView.setText(mAdapter.getRecyclerData().message);
     }
 
+    @Override
+    public void setBackgroundResource(int selectorDrawableId) {
+        mContentView.setBackgroundResource(selectorDrawableId);
+        mContainer.setBackgroundResource(selectorDrawableId);
+    }
 
     @Override
     public void bindView() {
@@ -143,6 +152,7 @@ public class DataRecyclerFooterCell extends DataRecyclerCell {
         }
         mContainer = new LinearLayout(mAdapter.getContext());
         mContainer.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, getDefaultFooterHeight()));
+        setBackgroundResource(FOOTER_DEFAULT_COLOR);
 //        mContainer.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
 //        mContainer.setBackgroundColor(Color.RED);
         mContainer.setMinimumHeight(OVER_SCROLLER_DISTANCE);
@@ -153,8 +163,6 @@ public class DataRecyclerFooterCell extends DataRecyclerCell {
         mContainer.setTag(this);
         return mContainer;
     }
-
-
 
     @Override
     void setHeight(int height) {
