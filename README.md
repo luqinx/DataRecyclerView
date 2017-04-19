@@ -1,1 +1,1 @@
-[![](https://jitpack.io/v/chaooooooo/DebugHelper.svg)](https://jitpack.io/#chaooooooo/DebugHelper)
+用法见demo
