@@ -23,16 +23,15 @@ import chao.app.refreshrecyclerview.recycleview.data.DataItemResult;
 
 /**
  * @author chao.qin
- * @since 2017/4/11
+ * @since 2017/4/19
  */
 
-public class StandardModeFragment extends Fragment implements OnItemClickListener {
-
+public class ErrorModeFragment extends Fragment implements OnItemClickListener {
     private static final long NETWORK_DELAY = 3000;
     private DataRecyclerView mRecyclerView;
 
     public static void show(Context context) {
-        UIDebugHelper.showUI(context,StandardModeFragment.class);
+        UIDebugHelper.showUI(context,ErrorModeFragment.class);
     }
 
     @Nullable
@@ -51,7 +50,14 @@ public class StandardModeFragment extends Fragment implements OnItemClickListene
                 DataItemDetail detail = new DataItemDetail();//相当于map
                 DataItemResult result = new DataItemResult();//相当于一个map集合
                 result.maxCount = 400;
-                pageSize = 20;
+                pageSize = 6;
+
+                int random = (int) (Math.random() * 10);
+                if (random % 3 == 0) {
+                    result.hasError = true;
+                    result.message = "This is a error test.";
+                    return result;
+                }
 
 
                 for (int i = 0; i < Math.min(result.maxCount,pageSize); i++) {

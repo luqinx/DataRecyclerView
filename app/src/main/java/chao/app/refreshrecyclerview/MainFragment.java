@@ -43,6 +43,12 @@ public class MainFragment extends Fragment implements View.OnClickListener {
             case R.id.load_standard:
                 StandardModeFragment.show(getActivity());
                 break;
+            case R.id.load_error:
+                ErrorModeFragment.show(getActivity());
+                break;
+            case R.id.load_forbidden:
+                ForbiddenModeFragment.show(getActivity());
+                break;
         }
     }
 }
