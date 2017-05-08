@@ -906,4 +906,11 @@ public class DataRecyclerAdapter extends RecyclerView.Adapter {
             mFooterCell.detach();
         }
     }
+
+    @Override
+    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
+        if (holder.itemView.getTag() == mHeaderCell && mHeaderCell.overHeader() && !isStatus(REFRESH_REFRESHING) && mRecyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) {
+            shrinkHeader(true);
+        }
+    }
 }
